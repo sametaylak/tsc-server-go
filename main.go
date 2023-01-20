@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -169,19 +170,24 @@ func runTSC(s *Server) {
 }
 
 func main() {
-	if len(os.Args) < 2 {
-		log.Fatal("You should provide a root folder path")
+	rootFolderPath := flag.String("rootFolderPath", "", "Root folder path in absolute path")
+	if rootFolderPath == nil {
+		log.Fatal("Invalid root folder path")
 	}
+	port := flag.Int("port", 9000, "Port to run")
 
-	rootFolderPath := os.Args[1]
-	if _, err := os.Stat(rootFolderPath); os.IsNotExist(err) {
+	flag.Parse()
+
+	fmt.Println(fmt.Sprintf("Listening on port %d", *port))
+
+	if _, err := os.Stat(*rootFolderPath); os.IsNotExist(err) {
 		log.Fatal("Invalid root folder path")
 	}
 
 	s := Server{
-		RootFolderPath: rootFolderPath,
+		RootFolderPath: *rootFolderPath,
 		Host:           "localhost",
-		Port:           9000,
+		Port:           *port,
 	}
 
 	runTSC(&s)
